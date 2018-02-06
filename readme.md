@@ -1,21 +1,124 @@
-# Lumen PHP Framework
+# Lumen API (with Laravel Passport)
 
-[![Build Status](https://travis-ci.org/laravel/lumen-framework.svg)](https://travis-ci.org/laravel/lumen-framework)
-[![Total Downloads](https://poser.pugx.org/laravel/lumen-framework/d/total.svg)](https://packagist.org/packages/laravel/lumen-framework)
-[![Latest Stable Version](https://poser.pugx.org/laravel/lumen-framework/v/stable.svg)](https://packagist.org/packages/laravel/lumen-framework)
-[![Latest Unstable Version](https://poser.pugx.org/laravel/lumen-framework/v/unstable.svg)](https://packagist.org/packages/laravel/lumen-framework)
 [![License](https://poser.pugx.org/laravel/lumen-framework/license.svg)](https://packagist.org/packages/laravel/lumen-framework)
 
-Laravel Lumen is a stunningly fast PHP micro-framework for building web applications with expressive, elegant syntax. We believe development must be an enjoyable, creative experience to be truly fulfilling. Lumen attempts to take the pain out of development by easing common tasks used in the majority of web projects, such as routing, database abstraction, queueing, and caching.
+This is a simple example to show a Lumen App (API) which works with Laravel Passport (OAuth 2.0).
 
-## Official Documentation
+It uses service provider from : https://github.com/dusterio/lumen-passport 
 
-Documentation for the framework can be found on the [Lumen website](http://lumen.laravel.com/docs).
+### Installation
+Clone this repository. Run the following commands:
 
-## Security Vulnerabilities
+```
+$ cd lumen-passport-api
+$ cp .env.example .env
+$ php artisan key:generate
+```
 
-If you discover a security vulnerability within Lumen, please send an e-mail to Taylor Otwell at taylor@laravel.com. All security vulnerabilities will be promptly addressed.
+Create your database and enter the details in your `.env` file. Now run the following commands:
 
-## License
+```
+$ php artisan migrate --seed
+$ php artisan passport:install
+```
+You will get this set of messages:
+```
+Encryption keys generated successfully.
+Personal access client created successfully.
+Client ID: 1
+Client Secret: aW1qHacErLrFquQfjoAuVIO0cWnlKNXM5LDhXjLi
+Password grant client created successfully.
+Client ID: 2
+Client Secret: dYl1Fgom4LjdkOkvZmhhSMdFDZGQLVnapFokWtMW
+```
 
-The Lumen framework is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)
+You should see two client ID and secret pairs.
+The first one is Personal Access Client and second one is Password Grant Client.
+The Password Grant Client will allow us to generate new tokens for users.
+
+### Testing the API
+
+We have already added two users in UsersTableSeeder.php.
+Their credentials are:
+
+```
+name : Heisenberg
+email : heisenberg@breakingbad.com
+password : crystal_meth
+```
+```
+name : Jesse Pinkman
+email : Jesse@breakingbad.com
+password : chilli_powder
+```
+
+#### Obtain access token:
+
+```
+curl -X POST \
+  http://127.0.0.1:8000/oauth/token \
+  -H 'accept: application/json' \
+  -H 'cache-control: no-cache' \
+  -H 'content-type: multipart/form-data; \
+  -F client_id=2 \
+  -F client_secret=dYl1Fgom4LjdkOkvZmhhSMdFDZGQLVnapFokWtMW \
+  -F grant_type=password \
+  -F username=jesse@breakingbad.com \
+  -F password=chilli_powder
+```
+
+Thus, we will get a response which has access token,
+
+```
+ {
+    "token_type": "Bearer",
+    "expires_in": 31536000,
+    "access_token": "VeryVeryVeryLongAccessToken",
+    "refresh_token": "YourRefreshToken"
+}
+```
+
+#### Get elements list:
+Finally, we can access secure api endpoint ``/api/element``:
+
+```
+curl -X GET \
+  http://127.0.0.1:8000/api/element \
+  -H 'authorization: Bearer VeryVeryVeryLongAccessToken' \
+```
+
+Response:
+
+```
+[
+    {
+        "atomic_number": 1,
+        "name": "Hydrogen",
+        "symbol": "H"
+    },
+    {
+        "atomic_number": 2,
+        "name": "Helium",
+        "symbol": "He"
+    },
+    {
+        "atomic_number": 6,
+        "name": "Carbon",
+        "symbol": "C"
+    },
+    {
+        "atomic_number": 7,
+        "name": "Nitrogen",
+        "symbol": "N"
+    },
+    {
+        "atomic_number": 8,
+        "name": "Oxygen",
+        "symbol": "O"
+    }
+]
+```
+
+### License
+
+MIT License.
