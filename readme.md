@@ -9,7 +9,7 @@ It uses service provider from : https://github.com/dusterio/lumen-passport
 ### Installation
 Clone this repository. Run the following commands:
 
-```
+```sh
 $ cd lumen-passport-api
 $ cp .env.example .env
 $ php artisan key:generate
@@ -17,12 +17,12 @@ $ php artisan key:generate
 
 Create your database and enter the details in your `.env` file. Now run the following commands:
 
-```
+```sh
 $ php artisan migrate --seed
 $ php artisan passport:install
 ```
 You will get this set of messages:
-```
+```sh
 Encryption keys generated successfully.
 Personal access client created successfully.
 Client ID: 1
@@ -54,7 +54,7 @@ password : chilli_powder
 
 #### Obtain access token:
 
-```
+```sh
 curl -X POST \
   http://127.0.0.1:8000/oauth/token \
   -H 'accept: application/json' \
@@ -69,7 +69,7 @@ curl -X POST \
 
 Thus, we will get a response which has access token,
 
-```
+```json
  {
     "token_type": "Bearer",
     "expires_in": 31536000,
@@ -81,7 +81,7 @@ Thus, we will get a response which has access token,
 #### Get elements list:
 Finally, we can access secure api endpoint ``/api/element``:
 
-```
+```sh
 curl -X GET \
   http://127.0.0.1:8000/api/element \
   -H 'authorization: Bearer VeryVeryVeryLongAccessToken' \
@@ -89,7 +89,7 @@ curl -X GET \
 
 Response:
 
-```
+```json
 [
     {
         "atomic_number": 1,
